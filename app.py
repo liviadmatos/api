@@ -8,7 +8,10 @@ API_KEY = "DEMO_KEY"
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # se vierem como args (após redirecionamentos), reusa para preencher o formulário
+    data_inicio = request.args.get('data_inicio', '')
+    data_fim = request.args.get('data_fim', '')
+    return render_template('index.html', data_inicio=data_inicio, data_fim=data_fim)
 
 @app.route('/espaco', methods=['POST'])
 def buscar_asteroides():
@@ -17,7 +20,8 @@ def buscar_asteroides():
     
     if not data_inicio or not data_fim:
         flash("Selecione as duas datas!")
-        return redirect('/')
+        # redirecionar mantendo valores já preenchidos (se houver)
+        return redirect(f"/?data_inicio={data_inicio or ''}&data_fim={data_fim or ''}")
 
     parametros = {
         'start_date': data_inicio,
@@ -38,21 +42,21 @@ def buscar_asteroides():
 
     except requests.exceptions.Timeout:
         flash("Tempo de conexão esgotado. Verifique sua internet e tente novamente.")
-        return redirect('/')
+        return redirect(f"/?data_inicio={data_inicio}&data_fim={data_fim}")
     except requests.exceptions.ConnectionError:
         flash("Não foi possível conectar à API da NASA. Verifique sua conexão de rede.")
-        return redirect('/')
+        return redirect(f"/?data_inicio={data_inicio}&data_fim={data_fim}")
     except requests.exceptions.HTTPError as err:
         status = err.response.status_code if err.response is not None else '??'
         reason = err.response.reason if err.response is not None else ''
         flash(f"A requisição retornou um erro HTTP {status} {reason}.")
-        return redirect('/')
+        return redirect(f"/?data_inicio={data_inicio}&data_fim={data_fim}")
     except ValueError:
         flash("Resposta da API não pôde ser interpretada. Acesso ou formato inesperado.")
-        return redirect('/')
+        return redirect(f"/?data_inicio={data_inicio}&data_fim={data_fim}")
     except Exception as err:
         flash(f"Erro inesperado: {err}")
-        return redirect('/')
+        return redirect(f"/?data_inicio={data_inicio}&data_fim={data_fim}")
 
     # se a requisição foi bem-sucedida, conferir dados esperados
     if isinstance(dados, dict) and 'near_earth_objects' in dados:
@@ -80,7 +84,7 @@ def buscar_asteroides():
     else:
         # caso a API tenha retornado outra estrutura (por exemplo, intervalo > 7 dias)
         flash("Erro na busca! Lembre-se: o intervalo máximo é de 7 dias.")
-        return redirect('/')
+        return redirect(f"/?data_inicio={data_inicio}&data_fim={data_fim}")
     
 
 if __name__ == "__main__":

@@ -45,6 +45,18 @@
             width: 100%;
             font-size: 1rem;
             box-sizing: border-box;
+            /* força o ícone do calendário a usar cor clara */
+            appearance: none; /* remove bordas nativas no Firefox */
+            position: relative;
+        }
+        /* pseudo-elemento para ícone customizado branco */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(2);
+            cursor: pointer;
+            color: white;
+        }
+        input[type="date"]::-moz-focus-inner {
+            border: 0;
         }
         
         button {

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Varredura - NASA</title>
+    <style>
+        body {
+            background-color: #0b0d17;
+            color: #f0f6fc;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 1rem;
+        }
+        h1 { color: #4cc9f0; margin-bottom: 5px; }
+        .date-range { color: #8b949e; font-size: 1.1rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-date {
+            color: #58a6ff;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .perigoso {
+            border-color: #ff4d4d;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.15);
+        }
+        .status {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-safe { background: #238636; color: white; }
+        .status-danger { background: #da3633; color: white; animation: pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(218, 54, 51, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(218, 54, 51, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(218, 54, 51, 0); }
+        }
+
+        .info-table { width: 100%; margin-top: 15px; border-collapse: collapse; }
+        .info-table td { padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 0.9rem; }
+        .label { color: #8b949e; }
+        .value { color: #f0f6fc; text-align: right; font-family: 'Courier New', monospace; }
+
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 4rem;
+            color: #58a6ff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: #4cc9f0; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Relatório de Varredura Sideral</h1>
+        <div class="date-range">Intervalo: {{ inicio }} até {{ fim }}</div>
+        <p>Encontrados {{ asteroides|length }} objetos em rota de aproximação</p>
+    </div>
+
+    <div class="grid">
+        {% for ast in asteroides %}
+        <div class="card {{ 'perigoso' if ast.perigoso }}">
+            <div class="card-date">📅 {{ ast.data_passagem }}</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: #fff;">{{ ast.nome.replace('(', '').replace(')', '') }}</h3>
+                <span class="status {{ 'status-danger' if ast.perigoso else 'status-safe' }}">
+                    {{ 'Alerta' if ast.perigoso else 'Seguro' }}
+                </span>
+            </div>
+
+            <table class="info-table">
+                <tr>
+                    <td class="label">Diâmetro Máximo</td>
+                    <td class="value">{{ ast.tamanho_max }} m</td>
+                </tr>
+                <tr>
+                    <td class="label">Velocidade Relativa</td>
+                    <td class="value">{{ "{:,.0f}".format(ast.velocidade) }} km/h</td>
+                </tr>
+                <tr>
+                    <td class="label">Distância de Erro</td>
+                    <td class="value">{{ "{:,.0f}".format(ast.distancia) }} km</td>
+                </tr>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+
+    <a href="/" class="back-btn">← REALIZAR NOVA VARREDURA NO ESPAÇO</a>
+</body>
+</html>

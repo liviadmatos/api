@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA - Monitoramento de Asteroides</title>
+    <style>
+        body {
+            background-color: #0b0d17;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+        }
+        .radar-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            width: 450px;
+        }
+        h1 { color: #4cc9f0; margin-bottom: 0.5rem; letter-spacing: 2px; font-size: 2rem; }
+        p { color: #8b949e; margin-bottom: 2rem; }
+        
+        .date-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #4cc9f0; }
+        
+        input[type="date"] {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4361ee, #4cc9f0);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+        }
+        .flash-msg {
+            background: #ff4d4d33;
+            color: #ff4d4d;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #ff4d4d;
+            font-size: 0.9rem;
+        }
+        .obs { color: #6e7681; font-size: 0.75rem; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="radar-container">
+        <h1>NEO-RADAR</h1>
+        <p>Near Earth Object Web Service</p>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash-msg">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="/espaco" method="POST">
+            <div class="date-group">
+                <div style="flex: 1;">
+                    <label>DATA INICIAL</label>
+                    <input type="date" name="data_inicio" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>DATA FINAL</label>
+                    <input type="date" name="data_fim" required>
+                </div>
+            </div>
+            <button type="submit">Iniciar Varredura</button>
+        </form>
+        <p class="obs">* O intervalo máximo permitido pela NASA é de 7 dias.</p>
+    </div>
+</body>
+</html>

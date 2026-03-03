@@ -25,10 +25,37 @@ def buscar_asteroides():
         'api_key': API_KEY
     }
 
-    response = requests.get("https://api.nasa.gov/neo/rest/v1/feed", params=parametros)
-    dados = response.json()
+    try:
+        # definir timeout para evitar esperas indefinidas
+        response = requests.get(
+            "https://api.nasa.gov/neo/rest/v1/feed",
+            params=parametros,
+            timeout=10
+        )
+        response.raise_for_status()  # levanta exceções para códigos 4xx/5xx
 
-    if 'near_earth_objects' in dados:
+        dados = response.json()  # pode levantar ValueError
+
+    except requests.exceptions.Timeout:
+        flash("Tempo de conexão esgotado. Verifique sua internet e tente novamente.")
+        return redirect('/')
+    except requests.exceptions.ConnectionError:
+        flash("Não foi possível conectar à API da NASA. Verifique sua conexão de rede.")
+        return redirect('/')
+    except requests.exceptions.HTTPError as err:
+        status = err.response.status_code if err.response is not None else '??'
+        reason = err.response.reason if err.response is not None else ''
+        flash(f"A requisição retornou um erro HTTP {status} {reason}.")
+        return redirect('/')
+    except ValueError:
+        flash("Resposta da API não pôde ser interpretada. Acesso ou formato inesperado.")
+        return redirect('/')
+    except Exception as err:
+        flash(f"Erro inesperado: {err}")
+        return redirect('/')
+
+    # se a requisição foi bem-sucedida, conferir dados esperados
+    if isinstance(dados, dict) and 'near_earth_objects' in dados:
         # A API traz os dados agrupados por data. 
         # Vamos "desmanchar" as datas e colocar todos os asteroides em uma lista só.
         objetos_por_data = dados['near_earth_objects']
@@ -51,6 +78,7 @@ def buscar_asteroides():
 
         return render_template('espaco.html', asteroides=lista_final, inicio=data_inicio, fim=data_fim)
     else:
+        # caso a API tenha retornado outra estrutura (por exemplo, intervalo > 7 dias)
         flash("Erro na busca! Lembre-se: o intervalo máximo é de 7 dias.")
         return redirect('/')
     
